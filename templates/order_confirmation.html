@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="order-confirmation">
+    <h2>Order Confirmation</h2>
+    <div class="confirmation-details">
+        <h3>Thank you for your order!</h3>
+        <p>Order #{{ order.id }}</p>
+        <p>Date: {{ order.date_created.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p>Total Amount: ${{ "%.2f"|format(order.total_amount) }}</p>
+        
+        <h4>Order Items:</h4>
+        <div class="order-items">
+            {% for item in order_items %}
+            <div class="order-item">
+                <p>{{ item.product.name }}</p>
+                <p>Quantity: {{ item.quantity }}</p>
+                <p>Price: ${{ "%.2f"|format(item.product.price * item.quantity) }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <p>An email confirmation has been sent to your registered email address.</p>
+        <a href="{{ url_for('shop') }}" class="button">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}

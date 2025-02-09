@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Home - Shopping App{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-6">
+    <div class="max-w-6xl mx-auto text-center text-white py-12">
+        <h1 class="text-4xl font-bold drop-shadow-lg">Welcome to our Shop</h1>
+        <p class="mt-2 text-lg opacity-80">Find the best deals and latest products here!</p>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        {% for product in products %}
+            <div class="bg-white p-4 rounded-2xl shadow-lg transform hover:scale-105 transition duration-300">
+                <div class="w-full h-48 bg-gray-300 rounded-md animate-pulse"></div> <!-- Placeholder for product image -->
+                <h3 class="mt-4 text-xl font-semibold text-gray-800">{{ product.name }}</h3>
+                <p class="text-gray-600 mt-2">{{ product.description }}</p>
+                <p class="mt-2 text-lg font-bold text-blue-600">₱ {{ "%.2f"|format(product.price) }}</p>
+                {% if current_user.is_authenticated %}
+                    <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post" class="mt-4">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
+                        <button type="submit" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition">Add to Cart</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
