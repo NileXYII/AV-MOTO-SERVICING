@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Shop{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% for product in products %}
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold mb-2">{{ product.name }}</h2>
+        <p class="text-gray-600 mb-4">${{ "%.2f"|format(product.price) }}</p>
+        {% if current_user.is_authenticated %}
+        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Add to Cart
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
