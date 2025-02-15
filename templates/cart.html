@@ -65,7 +65,7 @@
             <div class="space-y-3">
                 <div class="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span>${{ "%.2f"|format(cart_items|sum(attribute='product.price * quantity')) }}</span>
+                    <span>${{ "%.2f"|format(subtotal) }}</span>
                 </div>
                 <div class="flex justify-between text-gray-600">
                     <span>Shipping</span>
@@ -74,7 +74,7 @@
                 <div class="border-t border-gray-200 pt-3 flex justify-between items-center">
                     <span class="text-lg font-medium text-gray-900">Total</span>
                     <span class="text-2xl font-bold text-gray-900">
-                        ${{ "%.2f"|format(cart_items|sum(attribute='product.price * quantity')) }}
+                        ${{ "%.2f"|format(subtotal) }}
                     </span>
                 </div>
             </div>

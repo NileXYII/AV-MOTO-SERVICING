@@ -24,7 +24,7 @@
             <!-- Product Image -->
             <div class="aspect-w-4 aspect-h-3 bg-gray-100 relative">
                 <img 
-                    src="/api/placeholder/400/300"
+                    src="{{ product.image if product.image else '/api/placeholder/400/300' }}"
                     alt="{{ product.name }}"
                     class="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity"
                 >

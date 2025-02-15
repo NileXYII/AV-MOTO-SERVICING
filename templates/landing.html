@@ -3,6 +3,19 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} p-4 mb-4 rounded-lg">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <!-- Hero Section -->
 <div class="relative bg-white">
     <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
@@ -36,45 +49,16 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">Popular Categories</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Category 1 -->
+            {% for category in categories %}
             <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <img src="https://images.unsplash.com/photo-1429772011165-0c2e054367b8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Engine Parts" class="w-full h-48 object-cover">
+                <img src="{{ category.image_url or 'https://via.placeholder.com/300' }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-2">Engine Parts</h3>
-                    <p class="text-gray-600 mb-4">Quality components for optimal performance</p>
-                    <a href="#" class="text-blue-600 hover:text-blue-700">Shop Now →</a>
+                    <h3 class="text-lg font-semibold mb-2">{{ category.name }}</h3>
+                    <p class="text-gray-600 mb-4">{{ category.description or 'Explore our collection' }}</p>
+                    <a href="{{ url_for('shop', category=category.id) }}" class="text-blue-600 hover:text-blue-700">Shop Now →</a>
                 </div>
             </div>
-            
-            <!-- Category 2 -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <img src="https://images.unsplash.com/photo-1642351397005-c3544adc9c2a?q=80&w=1888&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Brake Systems" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-2">Brake Systems</h3>
-                    <p class="text-gray-600 mb-4">Complete brake solutions for safety</p>
-                    <a href="#" class="text-blue-600 hover:text-blue-700">Shop Now →</a>
-                </div>
-            </div>
-            
-            <!-- Category 3 -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <img src="https://images.unsplash.com/photo-1582297649766-c07106890cea?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Transmission" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-2">Transmission</h3>
-                    <p class="text-gray-600 mb-4">Reliable transmission components</p>
-                    <a href="#" class="text-blue-600 hover:text-blue-700">Shop Now →</a>
-                </div>
-            </div>
-            
-            <!-- Category 4 -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <img src="https://images.unsplash.com/photo-1599143125823-fecf49e7548b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Suspension" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-2">Suspension</h3>
-                    <p class="text-gray-600 mb-4">Superior ride comfort solutions</p>
-                    <a href="#" class="text-blue-600 hover:text-blue-700">Shop Now →</a>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -120,8 +104,6 @@
     </div>
 </div>
 
-
-
 <!-- CTA Section -->
 <div class="bg-blue-600">
     <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -141,6 +123,5 @@
         </div>
     </div>
 </div>
-
 
 {% endblock %}

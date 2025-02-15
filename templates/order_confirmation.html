@@ -1,26 +1,37 @@
 {% extends "base.html" %}
+
+{% block title %}Order Confirmation - Motor Parts{% endblock %}
+
 {% block content %}
-<div class="order-confirmation">
-    <h2>Order Confirmation</h2>
-    <div class="confirmation-details">
-        <h3>Thank you for your order!</h3>
-        <p>Order #{{ order.id }}</p>
-        <p>Date: {{ order.date_created.strftime('%Y-%m-%d %H:%M') }}</p>
-        <p>Total Amount: ${{ "%.2f"|format(order.total_amount) }}</p>
-        
-        <h4>Order Items:</h4>
-        <div class="order-items">
-            {% for item in order_items %}
-            <div class="order-item">
-                <p>{{ item.product.name }}</p>
-                <p>Quantity: {{ item.quantity }}</p>
-                <p>Price: ${{ "%.2f"|format(item.product.price * item.quantity) }}</p>
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Order Confirmation</h1>
+        <p class="text-lg text-gray-600 mb-8">Thank you for your order! Your order has been placed successfully.</p>
+
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Order Details</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Order ID:</span>
+                    <span class="font-medium text-gray-900">#{{ order.id }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Total Amount:</span>
+                    <span class="font-medium text-gray-900">${{ "%.2f"|format(order.total_amount) }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Payment Method:</span>
+                    <span class="font-medium text-gray-900">{{ order.payment_method }}</span>
+                </div>
             </div>
-            {% endfor %}
         </div>
-        
-        <p>An email confirmation has been sent to your registered email address.</p>
-        <a href="{{ url_for('shop') }}" class="button">Continue Shopping</a>
+
+        <div class="mt-8">
+            <a href="{{ url_for('shop') }}" 
+               class="inline-block bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200">
+                Continue Shopping
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

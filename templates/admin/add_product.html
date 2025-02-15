@@ -19,6 +19,56 @@
                        class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
+            <!-- Category Field -->
+            <div>
+                <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select id="category_id" 
+                        name="category_id" 
+                        required 
+                        class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="" disabled selected>-- Select a Category --</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Brand Field -->
+            <div>
+                <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+                <input type="text" 
+                       id="brand" 
+                       name="brand" 
+                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- Size Field -->
+            <div>
+                <label for="size" class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                <input type="text" 
+                       id="size" 
+                       name="size" 
+                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- Color Field -->
+            <div>
+                <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                <input type="text" 
+                       id="color" 
+                       name="color" 
+                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- Motorcycle Model Field -->
+            <div>
+                <label for="motorcycle_model" class="block text-sm font-medium text-gray-700 mb-1">Motorcycle Model</label>
+                <input type="text" 
+                       id="motorcycle_model" 
+                       name="motorcycle_model" 
+                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
             <!-- Description Field -->
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>

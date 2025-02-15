@@ -1,10 +1,37 @@
 {% extends "base.html" %}
+
+{% block title %}Shop - Motor Parts{% endblock %}
+
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <!-- Header Section -->
     <div class="max-w-7xl mx-auto text-center mb-12">
         <h2 class="text-4xl font-bold text-gray-900 mb-4">Available Products</h2>
         <p class="text-lg text-gray-600">Discover our curated collection</p>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="max-w-7xl mx-auto mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <!-- Search Bar -->
+            <form action="{{ url_for('shop') }}" method="GET" class="w-full sm:w-auto">
+                <input type="text" name="search" placeholder="Search products..." value="{{ request.args.get('search', '') }}" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </form>
+
+            <!-- Category Filter -->
+            <form action="{{ url_for('shop') }}" method="GET" class="w-full sm:w-auto">
+                <select name="category" onchange="this.form.submit()" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if request.args.get('category')|int == category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
     </div>
 
     <!-- Products Grid -->
@@ -31,12 +58,14 @@
                         <span class="text-2xl font-bold text-gray-900">
                             ${{ "%.2f"|format(product.price) }}
                         </span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            In Stock
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                  {% if product.stock > 0 %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}
                         </span>
                     </div>
 
                     <!-- Add to Cart Form -->
+                    {% if product.stock > 0 %}
                     <form action="{{ url_for('add_to_cart', product_id=product.id) }}" 
                           method="post" 
                           class="space-y-4">
@@ -46,6 +75,7 @@
                                        name="quantity" 
                                        value="1" 
                                        min="1"
+                                       max="{{ product.stock }}"
                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2">
                                 <label class="absolute -top-2 left-2 -mt-px inline-block px-1 bg-white text-xs font-medium text-gray-900">
                                     Qty
@@ -60,6 +90,11 @@
                             </button>
                         </div>
                     </form>
+                    {% else %}
+                    <div class="text-center text-sm text-gray-500">
+                        Out of Stock
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -72,8 +107,8 @@
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No products</h3>
-        <p class="mt-1 text-sm text-gray-500">Get started by adding some products to your store.</p>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+        <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
     </div>
     {% endif %}
 </div>
