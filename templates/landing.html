@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} p-4 mb-4 rounded-lg">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Hero Section -->
+<div class="relative bg-white">
+    <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+                    <span class="block">Quality Parts for</span>
+                    <span class="block text-blue-600">Every Vehicle</span>
+                </h1>
+                <p class="mt-6 text-xl text-gray-500">
+                    Find the perfect parts for your vehicle with our extensive collection and expert guidance.
+                </p>
+                <div class="mt-8 flex space-x-4">
+                    <a href="{{ url_for('shop') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Shop Now
+                    </a>
+                    <a href="{{ url_for('appointments') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200">
+                        Book Service
+                    </a>
+                </div>
+            </div>
+            <div class="hidden lg:block">
+                <img src="https://plus.unsplash.com/premium_photo-1664299577623-8c7ef6d2b42b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Auto parts" class="rounded-lg shadow-xl">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Categories -->
+<div class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">Popular Categories</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for category in categories %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <img src="{{ category.image_url or 'https://via.placeholder.com/300' }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold mb-2">{{ category.name }}</h3>
+                    <p class="text-gray-600 mb-4">{{ category.description or 'Explore our collection' }}</p>
+                    <a href="{{ url_for('shop', category=category.id) }}" class="text-blue-600 hover:text-blue-700">Shop Now →</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">Why Choose Us</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Quality Guaranteed</h3>
+                <p class="text-gray-600">All our parts are genuine and come with a warranty</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Fast Delivery</h3>
+                <p class="text-gray-600">Quick shipping to your location with real-time tracking</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Expert Support</h3>
+                <p class="text-gray-600">Professional guidance and technical support available 24/7</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="bg-blue-600">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="lg:flex lg:items-center lg:justify-between">
+            <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                <span class="block">Ready to get started?</span>
+                <span class="block text-blue-200">Get your parts today or schedule a service.</span>
+            </h2>
+            <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0 space-x-4">
+                <a href="{{ url_for('shop') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
+                    Shop Now
+                </a>
+                <a href="{{ url_for('appointments') }}" class="inline-flex items-center px-6 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-blue-700">
+                    Book Service
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
