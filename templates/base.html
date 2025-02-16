@@ -54,10 +54,16 @@
             <!-- Mobile Menu -->
             <div id="mobile-menu" class="hidden md:hidden pb-4">
                 <a href="{{ url_for('landing') }}" class="block text-gray-300 hover:text-white py-2">Home</a>
-                <a href="{{ url_for('shop') }}" class="block text-gray-300 hover:text-white py-2">Shop</a>
-                {% if current_user.is_authenticated %}
+                
+                {% if current_user.is_authenticated and not current_user.is_admin %}
+                    <a href="{{ url_for('shop') }}" class="block text-gray-300 hover:text-white py-2">Shop</a>
                     <a href="{{ url_for('cart') }}" class="block text-gray-300 hover:text-white py-2">Cart</a>
                     <a href="{{ url_for('appointments') }}" class="block text-gray-300 hover:text-white py-2">Appointments</a>
+                {% elif not current_user.is_authenticated %}
+                    <a href="{{ url_for('shop') }}" class="block text-gray-300 hover:text-white py-2">Shop</a>
+                {% endif %}
+            
+                {% if current_user.is_authenticated %}
                     {% if current_user.is_admin %}
                         <a href="{{ url_for('admin_dashboard') }}" class="block text-gray-300 hover:text-white py-2">Admin</a>
                     {% endif %}
