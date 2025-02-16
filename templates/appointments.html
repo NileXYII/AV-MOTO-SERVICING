@@ -27,7 +27,6 @@
                 Choose your preferred date and service type.
             </p>
         </div>
-
         <form action="{{ url_for('book_appointment') }}" method="post" class="space-y-6">
             <!-- Name Field -->
             <div>
@@ -37,6 +36,30 @@
                 <input type="text" 
                        id="name" 
                        name="name" 
+                       required
+                       class="mt-2 block w-full px-4 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+        
+            <!-- Motorcycle Model Field -->
+            <div>
+                <label for="motorcycle_model" class="block text-sm font-medium text-gray-700">
+                    Motorcycle Model
+                </label>
+                <input type="text" 
+                       id="motorcycle_model" 
+                       name="motorcycle_model" 
+                       required
+                       class="mt-2 block w-full px-4 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+        
+            <!-- Contact Number Field -->
+            <div>
+                <label for="contact_number" class="block text-sm font-medium text-gray-700">
+                    Contact Number
+                </label>
+                <input type="text" 
+                       id="contact_number" 
+                       name="contact_number" 
                        required
                        class="mt-2 block w-full px-4 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
             </div>
