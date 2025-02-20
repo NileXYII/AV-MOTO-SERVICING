@@ -1,128 +1,231 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="max-w-2xl mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow p-6">
-        <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Add New Product</h1>
-        </div>
-
-        <!-- Form -->
-        <form method="POST" class="space-y-6">
-            <!-- Name Field -->
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" 
-                       id="name" 
-                       name="name" 
-                       required 
-                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <!-- Category Field -->
-            <div>
-                <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select id="category_id" 
-                        name="category_id" 
-                        required 
-                        class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="" disabled selected>-- Select a Category --</option>
-                    {% for category in categories %}
-                    <option value="{{ category.id }}">{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Brand Field -->
-            <div>
-                <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                <input type="text" 
-                       id="brand" 
-                       name="brand" 
-                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <!-- Size Field -->
-            <div>
-                <label for="size" class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                <input type="text" 
-                       id="size" 
-                       name="size" 
-                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <!-- Color Field -->
-            <div>
-                <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                <input type="text" 
-                       id="color" 
-                       name="color" 
-                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <!-- Motorcycle Model Field -->
-            <div>
-                <label for="motorcycle_model" class="block text-sm font-medium text-gray-700 mb-1">Motorcycle Model</label>
-                <input type="text" 
-                       id="motorcycle_model" 
-                       name="motorcycle_model" 
-                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <!-- Description Field -->
-            <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea id="description" 
-                          name="description" 
-                          rows="4" 
-                          required 
-                          class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-            </div>
-
-            <!-- Price and Stock Fields -->
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div>
-                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span class="text-gray-500">$</span>
-                        </div>
-                        <input type="number" 
-                               id="price" 
-                               name="price" 
-                               step="0.01" 
-                               required 
-                               class="w-full pl-7 rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="stock" class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                    <input type="number" 
-                           id="stock" 
-                           name="stock" 
-                           required 
-                           class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-
-            <!-- Image URL Field -->
-            <div>
-                <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                <input type="text" 
-                       id="image" 
-                       name="image" 
-                       class="w-full rounded border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <!-- Submit Button -->
-            <div class="flex justify-end pt-4">
-                <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Add Product
-                </button>
-            </div>
-        </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - AVMOTO Admin</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile navigation toggle button -->
+    <div class="fixed top-4 left-4 z-50 sm:hidden">
+        <button id="toggleSidebar" type="button" class="p-2 text-gray-600 rounded-lg hover:bg-gray-700 hover:text-white focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
     </div>
-</div>
+
+    <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
+        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-800">
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center mb-5 pl-2.5">
+                <span class="self-center text-xl font-semibold text-white">AV MOTO Admin</span>
+            </a>
+            <ul class="space-y-2 font-medium">
+                <li>
+                    <a href="{{ url_for('admin_dashboard') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                            <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
+                            <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
+                        </svg>
+                        <span class="ml-3">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_products') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+                            <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 4a2 2 0 1 1 4 0v1H7V4Zm-.5 5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"/>
+                        </svg>
+                        <span class="ml-3">Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('add_staff') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z"/>
+                            <path d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z"/>
+                            <path d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z"/>
+                        </svg>
+                        <span class="ml-3">Add Staff</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('add_blog_post') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                            <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                        </svg>
+                        <span class="ml-3">Add Blog Post</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_services') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M19 11h-1.341c-.229 0-.426-.159-.473-.384a.5.5 0 0 0-.944.111c-.229 1.197-1.047 2.177-2.186 2.617l-1.716-3.434a.5.5 0 0 0-.894 0l-1.716 3.434c-1.139-.44-1.957-1.42-2.186-2.617a.5.5 0 0 0-.944-.111c-.047.225-.244.384-.473.384H1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7.5a.5.5 0 0 0 0-1H1v-7h5.341c.229 0 .426.159.473.384a.5.5 0 0 0 .944-.111c.229-1.197 1.047-2.177 2.186-2.617l1.716 3.434a.5.5 0 0 0 .894 0l1.716-3.434c1.139.44 1.957 1.42 2.186 2.617a.5.5 0 0 0 .944.111c.047-.225.244-.384.473-.384H19v7h-7.5a.5.5 0 0 0 0-1H19a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1z"/>
+                        </svg>
+                        <span class="ml-3">Services</span>
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="p-4 sm:ml-64 pt-8 sm:pt-4">
+        <div class="max-w-2xl mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <!-- Header -->
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold text-gray-900">Add New Product</h1>
+                </div>
+
+                <!-- Form -->
+                <form method="POST" class="space-y-6">
+                    <!-- Name Field -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               required 
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Category Field -->
+                    <div>
+                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select id="category_id" 
+                                name="category_id" 
+                                required 
+                                class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="" disabled selected>-- Select a Category --</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Brand Field -->
+                    <div>
+                        <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+                        <input type="text" 
+                               id="brand" 
+                               name="brand" 
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Size Field -->
+                    <div>
+                        <label for="size" class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                        <input type="text" 
+                               id="size" 
+                               name="size" 
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Color Field -->
+                    <div>
+                        <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                        <input type="text" 
+                               id="color" 
+                               name="color" 
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Motorcycle Model Field -->
+                    <div>
+                        <label for="motorcycle_model" class="block text-sm font-medium text-gray-700 mb-1">Motorcycle Model</label>
+                        <input type="text" 
+                               id="motorcycle_model" 
+                               name="motorcycle_model" 
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Description Field -->
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="description" 
+                                  name="description" 
+                                  rows="4" 
+                                  required 
+                                  class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+
+                    <!-- Price and Stock Fields -->
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500">$</span>
+                                </div>
+                                <input type="number" 
+                                       id="price" 
+                                       name="price" 
+                                       step="0.01" 
+                                       required 
+                                       class="w-full pl-7 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="stock" class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                            <input type="number" 
+                                   id="stock" 
+                                   name="stock" 
+                                   required 
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Image URL Field -->
+                    <div>
+                        <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                        <input type="text" 
+                               id="image" 
+                               name="image" 
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Add Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            
+            if(toggleButton && sidebar) {
+                toggleButton.addEventListener('click', function() {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnToggleButton = toggleButton.contains(event.target);
+                    
+                    if (!isClickInsideSidebar && !isClickOnToggleButton && window.innerWidth < 640 && !sidebar.classList.contains('-translate-x-full')) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
 {% endblock %}
