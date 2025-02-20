@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_mail import Mail, Message
 from datetime import datetime, timedelta
 import os
+import random
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 
@@ -14,8 +15,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///motorparts.db'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'your_email@gmail.com')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'your_email_password')
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'avmotoservicing@gmail.com')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'rozz agwd iosq rwux')
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -68,7 +69,7 @@ class CartItem(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    status = db.Column(db.String(20), default='pending')
+    status = db.Column(db.String(20), default='pending')  # Add more statuses like 'approved', 'declined'
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     total_amount = db.Column(db.Float, nullable=False)
     customer_name = db.Column(db.String(100), nullable=False)
@@ -95,6 +96,7 @@ class Appointment(db.Model):
     service_type = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(20), default='pending')
     notes = db.Column(db.Text)
+    reference_code = db.Column(db.String(6), unique=True)  
 
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -293,27 +295,35 @@ def book_appointment():
     try:
         date_str = request.form['date']
         date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
-        
+
         if date < datetime.now():
             flash('Cannot book appointments in the past', 'error')
             return redirect(url_for('appointments'))
-        
+
+        # Generate a reference code
+        reference_code = generate_reference_code()
+
         appointment = Appointment(
             user_id=current_user.id,
             customer_name=request.form['name'],
             motorcycle_model=request.form['motorcycle_model'],
             contact_number=request.form['contact_number'],
             date=date,
-            service_type=request.form['service_type']
+            service_type=request.form['service_type'],
+            reference_code=reference_code  # Add the reference code
         )
-        
+
         db.session.add(appointment)
         db.session.commit()
-        
-        log_activity(current_user.id, f'Booked appointment for {date_str}')
-        send_notification(current_user.email, 'Appointment Confirmation', 
-                         f'Your appointment for {appointment.service_type} on {date} has been scheduled.')
-        
+
+        # Send email with the reference code
+        send_notification(
+            current_user.email,
+            'Appointment Confirmation',
+            f'Your appointment for {appointment.service_type} on {date} has been scheduled. '
+            f'Your reference code is: {reference_code}. Please present this code when visiting the site.'
+        )
+
         flash('Appointment booked successfully!', 'success')
         return redirect(url_for('appointments'))
     except ValueError:
@@ -372,25 +382,19 @@ def admin_dashboard():
         flash('You do not have permission to access this page.', 'error')
         return redirect(url_for('shop'))
 
-    # Get pending appointments
+    # Handle search by reference code
+    search_query = request.args.get('search')
+    if search_query:
+        recent_appointments = Appointment.query.filter(Appointment.reference_code.contains(search_query)).all()
+    else:
+        recent_appointments = Appointment.query.order_by(Appointment.date.desc()).limit(10).all()
+
+    # Get other data for the dashboard
     pending_appointments = Appointment.query.filter_by(status='pending').all()
-
-    # Get all products
     products = Product.query.all()
-
-    # Get low stock products (less than 10 items)
     low_stock_products = Product.query.filter(Product.stock < 10).all()
-
-    # Get recent activity logs
     recent_logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(10).all()
-
-    # Get recent orders
     recent_orders = Order.query.order_by(Order.date_created.desc()).limit(10).all()
-
-    # Get recent appointments
-    recent_appointments = Appointment.query.order_by(Appointment.date.desc()).limit(10).all()
-
-    # Get sales statistics
     sales_stats = get_sales_statistics()
 
     return render_template('admin_dashboard.html',
@@ -672,9 +676,62 @@ def delete_service(service_id):
     return redirect(url_for('manage_services'))
 
 
+@app.route('/admin/approve_order/<int:order_id>', methods=['POST'])
+@login_required
+def approve_order(order_id):
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'error')
+        return redirect(url_for('shop'))
+
+    order = Order.query.get_or_404(order_id)
+    order.status = 'approved'
+    db.session.commit()
+
+    # Send email notification
+    send_notification(
+        order.user.email,
+        'Order Approved',
+        f'Your order #{order.id} has been approved. Thank you for shopping with us!'
+    )
+
+    flash('Order approved successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/decline_order/<int:order_id>', methods=['POST'])
+@login_required
+def decline_order(order_id):
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'error')
+        return redirect(url_for('shop'))
+
+    order = Order.query.get_or_404(order_id)
+    order.status = 'declined'
+    db.session.commit()
+
+    # Send email notification
+    send_notification(
+        order.user.email,
+        'Order Declined',
+        f'Your order #{order.id} has been declined. Please contact us for more information.'
+    )
+
+    flash('Order declined successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+
+    
+
+
+def generate_reference_code():
+    # Generate a random 6-digit number
+    code = random.randint(100000, 999999)
+    # Ensure the code is unique
+    while Appointment.query.filter_by(reference_code=str(code)).first():
+        code = random.randint(100000, 999999)
+    return str(code)
+
 def init_db():
     with app.app_context():
-        # Drop all tables to ensure clean slate
         db.drop_all()
         
         # Create all tables
