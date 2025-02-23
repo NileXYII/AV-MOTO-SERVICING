@@ -4,7 +4,4 @@ Flask-Login==0.6.3
 Flask-Mail==0.9.1
 Werkzeug==3.0.1
 SQLAlchemy==2.0.25
-<<<<<<< HEAD
-=======
 gunicorn==21.2.0
->>>>>>> 7667c5a73fc25b9a1b6813e267b28ca9605d9a45
