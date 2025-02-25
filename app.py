@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 import os
 import random
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 
@@ -163,7 +164,8 @@ def get_sales_statistics():
 # Routes
 @app.route('/')
 def landing():
-    return render_template('landing.html')
+    blog_posts = BlogPost.query.order_by(BlogPost.created_at.desc()).limit(3).all()
+    return render_template('landing.html', blog_posts=blog_posts)
 
 @app.route('/shop')
 def shop():
@@ -294,7 +296,8 @@ def appointments():
 def book_appointment():
     try:
         date_str = request.form['date']
-        date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+        period = request.form['period']  # 'morning' or 'afternoon'
+        date = datetime.strptime(date_str, '%Y-%m-%d')
 
         if date < datetime.now():
             flash('Cannot book appointments in the past', 'error')
@@ -303,12 +306,20 @@ def book_appointment():
         # Generate a reference code
         reference_code = generate_reference_code()
 
+        # Set the time based on the period
+        if period == 'morning':
+            time_slot = time(8, 0)  # Default to 8:00 AM for morning
+        else:
+            time_slot = time(13, 0)  # Default to 1:00 PM for afternoon
+
+        appointment_date = datetime.combine(date, time_slot)
+
         appointment = Appointment(
             user_id=current_user.id,
             customer_name=request.form['name'],
             motorcycle_model=request.form['motorcycle_model'],
             contact_number=request.form['contact_number'],
-            date=date,
+            date=appointment_date,
             service_type=request.form['service_type'],
             reference_code=reference_code  # Add the reference code
         )
@@ -320,7 +331,7 @@ def book_appointment():
         send_notification(
             current_user.email,
             'Appointment Confirmation',
-            f'Your appointment for {appointment.service_type} on {date} has been scheduled. '
+            f'Your appointment for {appointment.service_type} on {appointment_date} has been scheduled. '
             f'Your reference code is: {reference_code}. Please present this code when visiting the site.'
         )
 
@@ -329,7 +340,65 @@ def book_appointment():
     except ValueError:
         flash('Invalid date format', 'error')
         return redirect(url_for('appointments'))
+@app.route('/api/available_slots', methods=['GET'])
+@login_required
+def available_slots():
+    start_str = request.args.get('start')  # For FullCalendar date range
+    end_str = request.args.get('end')      # For FullCalendar date range
+    date_str = request.args.get('date')    # For single date selection
 
+    if not (start_str and end_str) and not date_str:
+        return jsonify({'error': 'Either start/end or date parameter is required'}), 400
+
+    try:
+        if start_str and end_str:
+            # Handle FullCalendar date range request
+            start_date = datetime.fromisoformat(start_str).date()
+            end_date = datetime.fromisoformat(end_str).date()
+
+            # Query existing appointments within the date range
+            existing_appointments = Appointment.query.filter(
+                func.date(Appointment.date) >= start_date,
+                func.date(Appointment.date) <= end_date
+            ).all()
+
+            # Prepare events for FullCalendar
+            events = []
+            for appointment in existing_appointments:
+                events.append({
+                    'title': f'{appointment.customer_name} - {appointment.service_type}',
+                    'start': appointment.date.isoformat(),
+                    'end': (appointment.date + timedelta(minutes=30)).isoformat(),
+                    'color': 'blue'  # Customize the event color
+                })
+
+            return jsonify(events)
+
+        elif date_str:
+            # Handle single date selection for booking
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+            # Query existing appointments for this date
+            existing_appointments = Appointment.query.filter(
+                func.date(Appointment.date) == date
+            ).all()
+
+            # Count appointments for morning and afternoon
+            morning_count = len([app for app in existing_appointments if app.date.time() < time(12, 0)])
+            afternoon_count = len([app for app in existing_appointments if app.date.time() >= time(12, 0)])
+
+            # Calculate remaining slots
+            morning_remaining = max(0, 25 - morning_count)
+            afternoon_remaining = max(0, 25 - afternoon_count)
+
+            return jsonify({
+                'morning_remaining': morning_remaining,
+                'afternoon_remaining': afternoon_remaining
+            })
+
+    except ValueError as e:
+        return jsonify({'error': f'Invalid date format: {e}'}), 400
+        
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -338,9 +407,17 @@ def login():
             login_user(user)
             log_activity(user.id, 'User logged in')
             flash('Login successful!', 'success')
+
+            # Redirect admin users to dashboard, others to shop
+            if user.is_admin:
+                return redirect(url_for('admin_dashboard'))
             return redirect(url_for('shop'))
+
         flash('Invalid username or password', 'error')
     return render_template('login.html')
+
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -513,6 +590,15 @@ def add_category():
     
     return render_template('admin/add_category.html')
 
+@app.context_processor
+def inject_cart_count():
+    cart_count = 0
+    if current_user.is_authenticated:
+        # Get count from user's cart items in the database
+        cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+        cart_count = sum(item.quantity for item in cart_items)
+    return dict(cart_count=cart_count)
+
 @app.route('/admin/blog')
 @login_required
 def manage_blog():
@@ -546,6 +632,11 @@ def add_blog_post():
         return redirect(url_for('manage_blog'))
     
     return render_template('admin/add_blog_post.html')
+
+@app.route('/blog/<int:post_id>')
+def view_blog_post(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    return render_template('blog_post.html', post=post)
 
 @app.route('/admin/services')
 @login_required
@@ -719,7 +810,71 @@ def decline_order(order_id):
     return redirect(url_for('admin_dashboard'))
 
 
+    # Enable CORS for Botpress
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["https://cdn.botpress.cloud"],
+        "methods": ["GET"],
+        "allow_headers": ["Content-Type"]
+    }
+})
+
+@app.route('/api/botpress/products', methods=['GET'])
+def botpress_products():
+    search = request.args.get('search', '').lower()
+    category = request.args.get('category', '')
     
+    query = Product.query
+    
+    if search:
+        query = query.filter(
+            db.or_(
+                Product.name.ilike(f'%{search}%'),
+                Product.description.ilike(f'%{search}%'),
+                Product.brand.ilike(f'%{search}%'),
+                Product.motorcycle_model.ilike(f'%{search}%')
+            )
+        )
+    
+    if category:
+        query = query.join(Category).filter(Category.name.ilike(f'%{category}%'))
+    
+    products = query.all()
+    
+    return jsonify({
+        'products': [{
+            'name': p.name,
+            'brand': p.brand,
+            'price': p.price,
+            'stock': p.stock,
+            'category': p.category.name,
+            'motorcycle_model': p.motorcycle_model,
+            'description': p.description
+        } for p in products]
+    })
+
+@app.route('/api/botpress/categories', methods=['GET'])
+def botpress_categories():
+    categories = Category.query.all()
+    return jsonify({
+        'categories': [c.name for c in categories]
+    })
+
+@app.route('/api/botpress/product/<string:name>', methods=['GET'])
+def botpress_product_detail(name):
+    product = Product.query.filter(Product.name.ilike(f'%{name}%')).first()
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
+        
+    return jsonify({
+        'name': product.name,
+        'brand': product.brand,
+        'price': product.price,
+        'stock': product.stock,
+        'category': product.category.name,
+        'motorcycle_model': product.motorcycle_model,
+        'description': product.description
+    })
 
 
 def generate_reference_code():
