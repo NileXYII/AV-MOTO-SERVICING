@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Blog Posts{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Manage Blog Posts</h1>
+    
+    <a href="{{ url_for('add_blog_post') }}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg mb-8 hover:bg-blue-700">
+        Add New Blog Post
+    </a>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for post in posts %}
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-bold text-gray-900 mb-2">{{ post.title }}</h2>
+            <p class="text-gray-600 mb-4">{{ post.content[:100] }}...</p>
+            <a href="{{ url_for('view_blog_post', post_id=post.id) }}" class="text-blue-600 hover:text-blue-700">
+                Read More
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
