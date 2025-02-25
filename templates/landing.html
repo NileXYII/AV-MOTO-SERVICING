@@ -95,6 +95,28 @@
         </div>
     </div>
 </div>
+<!-- Blog Section -->
+<div class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center reveal">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Latest Blog Posts</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Stay updated with the latest news and tips from our blog</p>
+        </div>
+        <div class="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for post in blog_posts %}
+            <div class="reveal gradient-border bg-white p-6 transform transition-all duration-300 hover:scale-105">
+                <a href="{{ url_for('view_blog_post', post_id=post.id) }}">
+                    <img src="{{ post.image_url or 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?q=80&w=1000&auto=format&fit=crop' }}" 
+                         alt="{{ post.title }}" 
+                         class="w-full h-48 object-cover rounded-lg mb-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ post.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ post.content[:100] }}...</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 
 <!-- Featured Categories -->
 <div class="py-24 bg-white">
