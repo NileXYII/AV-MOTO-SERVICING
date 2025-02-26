@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import SQLAlchemyError
+from flask_caching import Cache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
 from datetime import datetime, time, timedelta
@@ -18,6 +22,10 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'avmotoservicing@gmail.com')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'rozz agwd iosq rwux')
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+limiter = Limiter(key_func=get_remote_address)  # Create the Limiter instance first
+limiter.init_app(app) 
+
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -820,44 +828,57 @@ CORS(app, resources={
 })
 
 @app.route('/api/botpress/products', methods=['GET'])
+@limiter.limit("10 per minute")
 def botpress_products():
-    search = request.args.get('search', '').lower()
-    category = request.args.get('category', '')
-    
-    query = Product.query
-    
-    if search:
-        query = query.filter(
-            db.or_(
-                Product.name.ilike(f'%{search}%'),
-                Product.description.ilike(f'%{search}%'),
-                Product.brand.ilike(f'%{search}%'),
-                Product.motorcycle_model.ilike(f'%{search}%')
+    try:
+        search = request.args.get('search', '').lower()
+        category = request.args.get('category', '')
+        
+        query = Product.query.options(db.joinedload(Product.category))
+        
+        if search:
+            query = query.filter(
+                db.or_(
+                    Product.name.ilike(f'%{search}%'),
+                    Product.description.ilike(f'%{search}%'),
+                    Product.brand.ilike(f'%{search}%'),
+                    Product.motorcycle_model.ilike(f'%{search}%')
+                )
             )
-        )
-    
-    if category:
-        query = query.join(Category).filter(Category.name.ilike(f'%{category}%'))
-    
-    products = query.all()
-    
-    return jsonify({
-        'products': [{
-            'name': p.name,
-            'brand': p.brand,
-            'price': p.price,
-            'stock': p.stock,
-            'category': p.category.name,
-            'motorcycle_model': p.motorcycle_model,
-            'description': p.description
-        } for p in products]
-    })
+        
+        if category:
+            if not Category.query.filter(Category.name.ilike(f'%{category}%')).first():
+                return jsonify({'error': 'Invalid category'}), 400
+            query = query.join(Category).filter(Category.name.ilike(f'%{category}%'))
+        
+        products = query.all()
+        
+        return jsonify({
+            'status': 'success',
+            'data': {
+                'products': [{
+                    'name': p.name,
+                    'brand': p.brand,
+                    'price': p.price,
+                    'stock': p.stock,
+                    'category': p.category.name,
+                    'motorcycle_model': p.motorcycle_model,
+                    'description': p.description
+                } for p in products]
+            }
+        })
+    except SQLAlchemyError as e:
+        return jsonify({'error': 'Database error', 'details': str(e)}), 500
 
 @app.route('/api/botpress/categories', methods=['GET'])
+@cache.cached(timeout=60)
 def botpress_categories():
     categories = Category.query.all()
     return jsonify({
-        'categories': [c.name for c in categories]
+        'status': 'success',
+        'data': {
+            'categories': [c.name for c in categories]
+        }
     })
 
 @app.route('/api/botpress/product/<string:name>', methods=['GET'])
@@ -867,14 +888,18 @@ def botpress_product_detail(name):
         return jsonify({'error': 'Product not found'}), 404
         
     return jsonify({
-        'name': product.name,
-        'brand': product.brand,
-        'price': product.price,
-        'stock': product.stock,
-        'category': product.category.name,
-        'motorcycle_model': product.motorcycle_model,
-        'description': product.description
+        'status': 'success',
+        'data': {
+            'name': product.name,
+            'brand': product.brand,
+            'price': product.price,
+            'stock': product.stock,
+            'category': product.category.name,
+            'motorcycle_model': product.motorcycle_model,
+            'description': product.description
+        }
     })
+
 
 
 def generate_reference_code():
