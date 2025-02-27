@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Deployment Loading</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes gradientBackground {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .gradient-bg {
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBackground 15s ease infinite;
+    }
+
+    .progress-bar {
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen flex flex-col items-center justify-center text-white font-sans">
+  <div class="text-center">
+    <h1 class="text-5xl font-bold mb-4 animate-pulse">Deploying Your Site...</h1>
+    <p class="text-xl mb-8">This process will take approximately <span id="timer">12:00:00</span> to complete.</p>
+    <div class="w-96 h-4 bg-gray-200 rounded-full overflow-hidden">
+      <div id="progress" class="progress-bar h-full bg-blue-500"></div>
+    </div>
+  </div>
+
+  <script>
+    function startCountdown() {
+      const now = new Date();
+      const targetTime = new Date();
+      targetTime.setHours(22, 0, 0, 0); // Set target time to 10 PM today
+      if (now > targetTime) {
+        targetTime.setDate(targetTime.getDate() + 1); // Move to next day if past 10 PM
+      }
+
+      const endTime = new Date(targetTime.getTime() + 12 * 60 * 60 * 1000); // Add 12 hours
+      const totalTime = (endTime - targetTime) / 1000;
+
+      function updateTimer() {
+        const currentTime = new Date();
+        let timeLeft = Math.max(0, Math.floor((endTime - currentTime) / 1000));
+        
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+
+        document.getElementById('timer').textContent =
+          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        const progressPercentage = ((totalTime - timeLeft) / totalTime) * 100;
+        document.getElementById('progress').style.width = `${progressPercentage}%`;
+
+        if (timeLeft > 0) {
+          requestAnimationFrame(updateTimer);
+        } else {
+          document.getElementById('timer').textContent = "Deployment Complete!";
+          document.getElementById('progress').style.width = "100%";
+        }
+      }
+
+      updateTimer();
+    }
+
+    startCountdown();
+  </script>
+</body>
+</html>

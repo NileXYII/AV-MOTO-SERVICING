@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - AV Motorservicing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            color: white;
+            background-color: #495057;
+        }
+        .card-counter {
+            padding: 20px 10px;
+            background-color: #fff;
+            height: 100px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-counter.primary {
+            background-color: #007bff;
+            color: #FFF;
+        }
+        .card-counter.danger {
+            background-color: #ef5350;
+            color: #FFF;
+        }
+        .card-counter.success {
+            background-color: #66bb6a;
+            color: #FFF;
+        }
+        .card-counter.info {
+            background-color: #26c6da;
+            color: #FFF;
+        }
+        .card-counter i {
+            font-size: 4em;
+            opacity: 0.4;
+        }
+        .card-counter .count-numbers {
+            position: absolute;
+            right: 35px;
+            top: 20px;
+            font-size: 28px;
+            display: block;
+        }
+        .card-counter .count-name {
+            position: absolute;
+            right: 35px;
+            top: 65px;
+            font-style: italic;
+            opacity: 0.7;
+            display: block;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 p-0 sidebar">
+                <div class="py-4 px-3 mb-4 text-center">
+                    <h4>Staff Dashboard</h4>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{{ url_for('staff_dashboard') }}" class="sidebar-link active">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('staff_products') }}" class="sidebar-link">
+                            <i class="fas fa-box me-2"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('staff_services') }}" class="sidebar-link">
+                            <i class="fas fa-wrench me-2"></i> Services
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('staff_appointments') }}" class="sidebar-link">
+                            <i class="fas fa-calendar-alt me-2"></i> Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item mt-5">
+                        <a href="{{ url_for('shop') }}" class="sidebar-link">
+                            <i class="fas fa-store me-2"></i> View Shop
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('logout') }}" class="sidebar-link">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 pt-3">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Staff Dashboard</h2>
+                        <div>
+                            <span class="me-2">Welcome, {{ current_user.username }}</span>
+                            <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Status Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card-counter primary">
+                                <i class="fas fa-calendar-check"></i>
+                                <span class="count-numbers">{{ pending_appointments|length }}</span>
+                                <span class="count-name">Pending Appointments</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card-counter danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span class="count-numbers">{{ low_stock_products|length }}</span>
+                                <span class="count-name">Low Stock Items</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card-counter success">
+                                <i class="fas fa-box"></i>
+                                <span class="count-numbers">{{ products|length }}</span>
+                                <span class="count-name">Total Products</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card-counter info">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span class="count-numbers">₱{{ "%.2f"|format(today_sales) }}</span>
+                                <span class="count-name">Today's Sales</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Pending Appointments -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Pending Appointments</h5>
+                                    <a href="{{ url_for('staff_appointments') }}" class="btn btn-sm btn-primary">View All</a>
+                                </div>
+                                <div class="card-body">
+                                    {% if pending_appointments %}
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Reference</th>
+                                                    <th>Customer</th>
+                                                    <th>Service Type</th>
+                                                    <th>Date</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for appointment in pending_appointments[:5] %}
+                                                <tr>
+                                                    <td>{{ appointment.reference_code }}</td>
+                                                    <td>{{ appointment.customer_name }}</td>
+                                                    <td>{{ appointment.service_type }}</td>
+                                                    <td>{{ appointment.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                                    <td>
+                                                        <a href="{{ url_for('staff_appointments') }}?search={{ appointment.reference_code }}" class="btn btn-sm btn-outline-primary">
+                                                            Manage
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <p class="text-center my-3">No pending appointments.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Orders -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Recent Orders</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if recent_orders %}
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Customer</th>
+                                                    <th>Amount</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for order in recent_orders %}
+                                                <tr>
+                                                    <td>#{{ order.id }}</td>
+                                                    <td>{{ order.customer_name }}</td>
+                                                    <td>₱{{ "%.2f"|format(order.total_amount) }}</td>
+                                                    <td>
+                                                        <span class="badge {% if order.status == 'pending' %}bg-warning
+                                                                              {% elif order.status == 'approved' %}bg-success
+                                                                              {% elif order.status == 'declined' %}bg-danger
+                                                                              {% else %}bg-secondary{% endif %}">
+                                                            {{ order.status }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <p class="text-center my-3">No recent orders.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Low Stock Products -->
+                        <div class="col-md-12 mb-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Low Stock Products</h5>
+                                    <a href="{{ url_for('staff_products') }}" class="btn btn-sm btn-primary">View All Products</a>
+                                </div>
+                                <div class="card-body">
+                                    {% if low_stock_products %}
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product Name</th>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Current Stock</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for product in low_stock_products %}
+                                                <tr>
+                                                    <td>{{ product.name }}</td>
+                                                    <td>{{ product.category.name }}</td>
+                                                    <td>₱{{ "%.2f"|format(product.price) }}</td>
+                                                    <td>
+                                                        <span class="badge bg-danger">{{ product.stock }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ url_for('staff_edit_product', id=product.id) }}" class="btn btn-sm btn-outline-primary">
+                                                            Update Stock
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <p class="text-center my-3">No low stock products.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

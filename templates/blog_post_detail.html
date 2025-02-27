@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - AVMOTO Blog</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
+        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-800">
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center mb-5 pl-2.5">
+                <span class="self-center text-xl font-semibold text-white">AV MOTO Admin</span>
+            </a>
+            <ul class="space-y-2 font-medium">
+                <li>
+                    <a href="{{ url_for('admin_dashboard') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                            <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
+                            <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
+                        </svg>
+                        <span class="ml-3">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_products') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+                            <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 4a2 2 0 1 1 4 0v1H7V4Zm-.5 5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"/>
+                        </svg>
+                        <span class="ml-3">Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_categories') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z"/>
+                            <path d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z"/>
+                            <path d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z"/>
+                        </svg>
+                        <span class="ml-3">Categories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                            <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                        </svg>
+                        <span class="ml-3">Appointments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_services') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M19 11h-1.341c-.229 0-.426-.159-.473-.384a.5.5 0 0 0-.944.111c-.229 1.197-1.047 2.177-2.186 2.617l-1.716-3.434a.5.5 0 0 0-.894 0l-1.716 3.434c-1.139-.44-1.957-1.42-2.186-2.617a.5.5 0 0 0-.944-.111c-.047.225-.244.384-.473.384H1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7.5a.5.5 0 0 0 0-1H1v-7h5.341c.229 0 .426.159.473.384a.5.5 0 0 0 .944-.111c.229-1.197 1.047-2.177 2.186-2.617l1.716 3.434a.5.5 0 0 0 .894 0l1.716-3.434c1.139.44 1.957 1.42 2.186 2.617a.5.5 0 0 0 .944.111c.047-.225.244-.384.473-.384H19v7h-7.5a.5.5 0 0 0 0 1H19a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1z"/>
+                        </svg>
+                        <span class="ml-3">Services</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="p-4 sm:ml-64">
+        <div class="p-4 border-2 border-gray-200 rounded-lg">
+            <!-- Blog Post Header -->
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">{{ post.title }}</h1>
+                <p class="text-sm text-gray-500">By {{ post.author.username }} on {{ post.created_at.strftime('%Y-%m-%d') }}</p>
+            </div>
+
+            <!-- Blog Post Image -->
+            {% if post.image_url %}
+            <div class="mb-6">
+                <img src="{{ post.image_url }}" alt="{{ post.title }}" class="w-full h-64 object-cover rounded-lg">
+            </div>
+            {% endif %}
+
+            <!-- Blog Post Content -->
+            <div class="prose max-w-none">
+                {{ post.content | safe }}
+            </div>
+
+            <!-- Back to Blog Link -->
+            <div class="mt-6">
+                <a href="{{ url_for('manage_blog') }}" class="text-blue-600 hover:text-blue-900">
+                    &larr; Back to Blog
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add any JavaScript functionality here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.querySelector('[data-drawer-toggle="logo-sidebar"]');
+            const sidebar = document.querySelector('#logo-sidebar');
+            
+            if(mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
