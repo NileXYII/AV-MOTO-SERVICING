@@ -27,22 +27,39 @@
 <body class="gradient-bg min-h-screen flex flex-col items-center justify-center text-white font-sans">
   <div class="text-center">
     <h1 class="text-5xl font-bold mb-4 animate-pulse">Deploying Your Site...</h1>
-    <p class="text-xl mb-8">This process will take approximately <span id="timer">12:00:00</span> to complete.</p>
+    <p class="text-xl mb-4">This process will take approximately <span id="timer">12:00:00</span> to complete.</p>
+    <p id="status-message" class="text-lg font-semibold mb-6 animate-bounce">Initializing Deployment...</p>
+    
     <div class="w-96 h-4 bg-gray-200 rounded-full overflow-hidden">
       <div id="progress" class="progress-bar h-full bg-blue-500"></div>
     </div>
   </div>
 
   <script>
+    const statusMessages = [
+      "Processing Templates...",
+      "Initializing Flask App...",
+      "Analyzing AI Models...",
+      "Optimizing Resources...",
+      "Finalizing Deployment..."
+    ];
+    
+    function cycleStatusMessages() {
+      let index = 0;
+      setInterval(() => {
+        document.getElementById('status-message').textContent = statusMessages[index];
+        index = (index + 1) % statusMessages.length;
+      }, 3000); // Change message every 3 seconds
+    }
+    
     function startCountdown() {
       const now = new Date();
       const targetTime = new Date();
-      targetTime.setHours(22, 0, 0, 0); // Set target time to 10 PM today
+      targetTime.setHours(22, 0, 0, 0); 
       if (now > targetTime) {
-        targetTime.setDate(targetTime.getDate() + 1); // Move to next day if past 10 PM
+        targetTime.setDate(targetTime.getDate() + 1);
       }
-
-      const endTime = new Date(targetTime.getTime() + 12 * 60 * 60 * 1000); // Add 12 hours
+      const endTime = new Date(targetTime.getTime() + 12 * 60 * 60 * 1000);
       const totalTime = (endTime - targetTime) / 1000;
 
       function updateTimer() {
@@ -64,12 +81,13 @@
         } else {
           document.getElementById('timer').textContent = "Deployment Complete!";
           document.getElementById('progress').style.width = "100%";
+          document.getElementById('status-message').textContent = "Deployment Successful!";
         }
       }
-
       updateTimer();
     }
 
+    cycleStatusMessages();
     startCountdown();
   </script>
 </body>
