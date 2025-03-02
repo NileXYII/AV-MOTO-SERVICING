@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-600 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Background elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-pink-300 opacity-20 filter blur-xl animate-pulse"></div>
+        <div class="absolute bottom-1/3 right-1/3 w-80 h-80 rounded-full bg-blue-300 opacity-20 filter blur-xl animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-2/3 left-1/2 w-56 h-56 rounded-full bg-purple-300 opacity-20 filter blur-xl animate-pulse" style="animation-delay: 2s;"></div>
+    </div>
+
+    <div class="w-full max-w-md z-10">
+        <!-- Glassmorphism card container -->
+        <div class="backdrop-filter backdrop-blur-lg bg-white bg-opacity-20 rounded-xl shadow-lg border border-white border-opacity-30 p-6 sm:p-8 space-y-6 transition-all duration-300 hover:shadow-xl">
+            <!-- Header section -->
+            <div class="text-center">
+                <!-- Logo with animation -->
+                <div class="mx-auto w-16 h-16 bg-white bg-opacity-30 rounded-full flex items-center justify-center transform transition-transform duration-500 hover:scale-110 hover:rotate-12">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                    </svg>
+                </div>
+                <h2 class="mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                    Welcome back
+                </h2>
+                <p class="mt-2 text-sm text-white text-opacity-80">
+                    Please sign in to your account
+                </p>
+            </div>
+
+            <!-- Login form -->
+            <form class="space-y-6" action="{{ url_for('login') }}" method="post">
+                <input type="hidden" name="remember" value="true">
+                
+                <!-- Username field with animation -->
+                <div class="group">
+                    <label for="username" class="block text-sm font-medium text-white">
+                        Username
+                    </label>
+                    <div class="mt-1">
+                        <input id="username" 
+                               name="username" 
+                               type="text" 
+                               required 
+                               class="block w-full px-4 py-3 rounded-lg bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-white placeholder-opacity-60 shadow-sm focus:ring-2 focus:ring-white focus:border-transparent focus:bg-opacity-20 transition-all duration-300 ease-in-out"
+                               placeholder="Enter your username">
+                    </div>
+                </div>
+
+                <!-- Password field with animation -->
+                <div class="group">
+                    <label for="password" class="block text-sm font-medium text-white">
+                        Password
+                    </label>
+                    <div class="mt-1 relative">
+                        <input id="password" 
+                               name="password" 
+                               type="password" 
+                               required 
+                               class="block w-full px-4 py-3 rounded-lg bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-white placeholder-opacity-60 shadow-sm focus:ring-2 focus:ring-white focus:border-transparent focus:bg-opacity-20 transition-all duration-300 ease-in-out"
+                               placeholder="Enter your password">
+                    </div>
+                </div>
+
+                <!-- Remember me checkbox with improved styles -->
+                <div class="flex items-center justify-between flex-wrap gap-y-2">
+                    <div class="flex items-center">
+                        <input id="remember-me" 
+                               name="remember-me" 
+                               type="checkbox"
+                               class="h-4 w-4 rounded border-transparent bg-white bg-opacity-10 text-blue-600 focus:ring-white transition-colors duration-200 ease-in-out">
+                        <label for="remember-me" class="ml-2 block text-sm text-white">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-white hover:text-opacity-80 transition-opacity duration-200">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Submit button with enhanced animation -->
+                <div>
+                    <button type="submit" 
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-all duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sign up link with subtle animation -->
+        <p class="mt-6 text-center text-sm text-white">
+            Don't have an account?
+            <a href="{{ url_for('signup') }}" class="font-medium text-white hover:text-opacity-80 transition-opacity duration-200 underline decoration-2 decoration-transparent hover:decoration-white underline-offset-2">
+                Create one now
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

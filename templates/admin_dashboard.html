@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVMOTO Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- Google Fonts: Material Design recommends Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2196F3;
+            --primary-dark: #1976D2;
+            --primary-light: #BBDEFB;
+            --accent: #FF4081;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --divider: #BDBDBD;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            transition: background-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        /* Material Design elevation */
+        .md-elevation-1 {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+        
+        .md-elevation-1:hover {
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        }
+        
+        .md-elevation-2 {
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+        
+        .md-elevation-2:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        }
+        
+        /* Material Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+        
+        .ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+        
+        .ripple:active:after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+        
+        /* Nav link animations */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #fff;
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Card entry animation */
+        @keyframes cardEntry {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-animate {
+            animation: cardEntry 0.5s ease forwards;
+        }
+        
+        /* Staggered animations for cards */
+        .card-animate:nth-child(1) { animation-delay: 0.1s; }
+        .card-animate:nth-child(2) { animation-delay: 0.2s; }
+        .card-animate:nth-child(3) { animation-delay: 0.3s; }
+        
+        /* Pulse animation for notifications */
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Fab button animation */
+        @keyframes fabIn {
+            from {
+                opacity: 0;
+                transform: scale(0) rotate(720deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+        
+        .fab {
+            animation: fabIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation-delay: 0.8s;
+            opacity: 0;
+        }
+        
+        /* Scale animation for icons */
+        .scale-on-hover {
+            transition: transform 0.3s ease;
+        }
+        
+        .scale-on-hover:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Data table styles */
+        .data-table th {
+            position: sticky;
+            top: 0;
+            background-color: #f9fafb;
+            z-index: 10;
+        }
+        
+        /* Chart animations */
+        .chart-container {
+            transition: all 0.5s ease;
+            transform-origin: center;
+        }
+        
+        .chart-container:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-[#2196F3] fixed w-full z-40 md-elevation-2">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <!-- Logo -->
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center">
+                <span class="material-icons-round text-white mr-2">motorcycle</span>
+                <span class="self-center text-xl font-medium text-white">AV MOTO Admin</span>
+            </a>
+    
+            <!-- Mobile menu button -->
+            <button id="toggleNav" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-[#1976D2] focus:outline-none focus:ring-2 focus:ring-white transition-all ripple">
+                <span class="material-icons-round">menu</span>
+            </button>
+    
+            <!-- Nav Links -->
+            <div id="navLinks" class="hidden w-full md:block md:w-auto">
+                <ul class="flex flex-col p-4 md:p-0 mt-4 md:flex-row md:space-x-8 md:mt-0 md:border-0">
+                    <!-- Dashboard -->
+                    <li>
+                        <a href="{{ url_for('admin_dashboard') }}" class="nav-link ripple flex items-center py-2 pl-3 pr-4 text-white rounded hover:bg-[#1976D2] md:hover:bg-transparent md:p-0">
+                            <span class="material-icons-round mr-1 md:hidden">dashboard</span>
+                            Dashboard
+                        </a>
+                    </li>
+    
+                    <!-- Products -->
+                    <li>
+                        <a href="{{ url_for('admin_products') }}" class="nav-link ripple flex items-center py-2 pl-3 pr-4 text-white rounded hover:bg-[#1976D2] md:hover:bg-transparent md:p-0">
+                            <span class="material-icons-round mr-1 md:hidden">inventory</span>
+                            Products
+                        </a>
+                    </li>
+    
+                    <!-- Verify GCash Payments -->
+                    <li>
+                        <a href="{{ url_for('admin_verify_gcash') }}" class="nav-link ripple flex items-center py-2 pl-3 pr-4 text-white rounded hover:bg-[#1976D2] md:hover:bg-transparent md:p-0">
+                            <span class="material-icons-round mr-1 md:hidden">payments</span>
+                            Orders Via Gcash
+                            {% if pending_gcash > 0 %}
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white pulse">
+                                {{ pending_gcash }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+    
+                    <!-- Add Staff -->
+                    <li>
+                        <a href="{{ url_for('add_staff') }}" class="nav-link ripple flex items-center py-2 pl-3 pr-4 text-white rounded hover:bg-[#1976D2] md:hover:bg-transparent md:p-0">
+                            <span class="material-icons-round mr-1 md:hidden">person_add</span>
+                            Add Staff
+                        </a>
+                    </li>
+    
+                    <!-- Add Blog Post -->
+                    <li>
+                        <a href="{{ url_for('add_blog_post') }}" class="nav-link ripple flex items-center py-2 pl-3 pr-4 text-white rounded hover:bg-[#1976D2] md:hover:bg-transparent md:p-0">
+                            <span class="material-icons-round mr-1 md:hidden">post_add</span>
+                            Add Blog Post
+                        </a>
+                    </li>
+    
+                    <!-- Services -->
+                    <li>
+                        <a href="{{ url_for('manage_services') }}" class="nav-link ripple flex items-center py-2 pl-3 pr-4 text-white rounded hover:bg-[#1976D2] md:hover:bg-transparent md:p-0">
+                            <span class="material-icons-round mr-1 md:hidden">build</span>
+                            Services
+                        </a>
+                    </li>
+    
+                    <!-- Logout -->
+                    <li>
+                        <a href="{{ url_for('logout') }}" class="nav-link ripple flex items-center py-2 pl-3 pr-4 text-white rounded hover:bg-[#1976D2] md:hover:bg-transparent md:p-0">
+                            <span class="material-icons-round mr-1 md:hidden">logout</span>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-24 p-4">
+        <!-- Stats and Charts -->
+        <div class="max-w-screen-xl mx-auto">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="card-animate md-elevation-1 flex items-center justify-between p-5 bg-white rounded-lg hover:bg-gray-50 transition-all duration-300">
+                    <div>
+                        <p class="text-gray-500 mb-1">Daily Sales</p>
+                        <h3 class="text-2xl font-bold">₱{{ "%.2f"|format(sales_stats['daily']) }}</h3>
+                    </div>
+                    <div class="p-3 bg-green-100 rounded-full scale-on-hover">
+                        <span class="material-icons-round text-green-600">attach_money</span>
+                    </div>
+                </div>
+                
+                <div class="card-animate md-elevation-1 flex items-center justify-between p-5 bg-white rounded-lg hover:bg-gray-50 transition-all duration-300">
+                    <div>
+                        <p class="text-gray-500 mb-1">Monthly Sales</p>
+                        <h3 class="text-2xl font-bold">₱{{ "%.2f"|format(sales_stats['monthly']) }}</h3>
+                    </div>
+                    <div class="p-3 bg-blue-100 rounded-full scale-on-hover">
+                        <span class="material-icons-round text-blue-600">trending_up</span>
+                    </div>
+                </div>
+                
+                <div class="card-animate md-elevation-1 flex items-center justify-between p-5 bg-white rounded-lg hover:bg-gray-50 transition-all duration-300">
+                    <div>
+                        <p class="text-gray-500 mb-1">Yearly Sales</p>
+                        <h3 class="text-2xl font-bold">₱{{ "%.2f"|format(sales_stats['yearly']) }}</h3>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-full scale-on-hover">
+                        <span class="material-icons-round text-purple-600">bar_chart</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="card-animate md-elevation-1 bg-white p-5 rounded-lg">
+                    <h2 class="text-lg font-medium mb-4 text-gray-800">Sales Overview</h2>
+                    <div class="chart-container h-64">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card-animate md-elevation-1 bg-white p-5 rounded-lg">
+                    <h2 class="text-lg font-medium mb-4 text-gray-800">Order Status</h2>
+                    <div class="chart-container h-64">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders & Low Stock Products -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="card-animate md-elevation-1 bg-white p-5 rounded-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-medium text-gray-800">Recent Orders</h2>
+                        <button class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                            <span class="material-icons-round text-sm mr-1">refresh</span>
+                            Refresh
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto -mx-4 sm:mx-0">
+                        <!-- Recent Orders Table -->
+                        <table class="w-full text-sm text-left text-gray-500 data-table">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 sm:px-6">Order ID</th>
+                                    <th class="px-4 py-3 sm:px-6">Customer</th>
+                                    <th class="px-4 py-3 sm:px-6">Amount</th>
+                                    <th class="px-4 py-3 sm:px-6">Status</th>
+                                    <th class="px-4 py-3 sm:px-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr class="bg-white border-b hover:bg-gray-50 transition-colors duration-150">
+                                    <td class="px-4 py-3 sm:px-6">#{{ order.id }}</td>
+                                    <td class="px-4 py-3 sm:px-6">{{ order.customer_name }}</td>
+                                    <td class="px-4 py-3 sm:px-6">₱{{ "%.2f"|format(order.total_amount) }}</td>
+                                    <td class="px-4 py-3 sm:px-6">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                            {% if order.status == 'completed' %}
+                                                bg-green-100 text-green-800
+                                            {% elif order.status == 'pending' %}
+                                                bg-yellow-100 text-yellow-800
+                                            {% elif order.status == 'approved' %}
+                                                bg-blue-100 text-blue-800
+                                            {% elif order.status == 'declined' %}
+                                                bg-red-100 text-red-800
+                                            {% else %}
+                                                bg-gray-100 text-gray-800
+                                            {% endif %}">
+                                            {{ order.status|title }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 sm:px-6">
+                                        {% if order.status == 'pending' %}
+                                        <div class="flex flex-col sm:flex-row gap-2">
+                                            <form action="{{ url_for('approve_order', order_id=order.id) }}" method="POST" class="inline">
+                                                <button type="submit" class="text-green-600 hover:text-green-900 flex items-center ripple">
+                                                    <span class="material-icons-round text-sm mr-1">check_circle</span> Approve
+                                                </button>
+                                            </form>
+                                            <form action="{{ url_for('decline_order', order_id=order.id) }}" method="POST" class="inline">
+                                                <button type="submit" class="text-red-600 hover:text-red-900 flex items-center ripple">
+                                                    <span class="material-icons-round text-sm mr-1">cancel</span> Decline
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-animate md-elevation-1 bg-white p-5 rounded-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-medium text-gray-800">Low Stock Alerts</h2>
+                        <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">3 items</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-3 border border-gray-200 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors duration-150">
+                            <div class="flex items-center">
+                                <span class="material-icons-round text-red-500 mr-2">warning</span>
+                                <div>
+                                    <p class="font-medium">Motorcycle Oil Filter</p>
+                                    <p class="text-sm text-gray-500">SKU: #OIL-FLT-001</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium">5 left</p>
+                                <button class="text-sm text-blue-600 hover:text-blue-800">Restock</button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 border border-gray-200 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors duration-150">
+                            <div class="flex items-center">
+                                <span class="material-icons-round text-red-500 mr-2">warning</span>
+                                <div>
+                                    <p class="font-medium">Brake Pads</p>
+                                    <p class="text-sm text-gray-500">SKU: #BRK-PAD-002</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium">3 left</p>
+                                <button class="text-sm text-blue-600 hover:text-blue-800">Restock</button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 border border-gray-200 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors duration-150">
+                            <div class="flex items-center">
+                                <span class="material-icons-round text-red-500 mr-2">warning</span>
+                                <div>
+                                    <p class="font-medium">Riding Gloves (XL)</p>
+                                    <p class="text-sm text-gray-500">SKU: #ACC-GLV-003</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium">2 left</p>
+                                <button class="text-sm text-blue-600 hover:text-blue-800">Restock</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Appointments with Search Bar -->
+            <div class="card-animate md-elevation-1 bg-white p-5 rounded-lg mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                    <h2 class="text-lg font-medium text-gray-800">Recent Appointments</h2>
+                    <form action="{{ url_for('admin_dashboard') }}" method="GET" class="flex flex-col sm:flex-row items-center w-full sm:w-auto gap-2">
+                        <div class="relative w-full sm:w-auto">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+                                <span class="material-icons-round text-sm">search</span>
+                            </span>
+                            <input type="text" name="search" placeholder="Search by reference code" 
+                                class="w-full sm:w-auto pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center ripple">
+                            <span class="material-icons-round text-sm mr-1">search</span>
+                            Search
+                        </button>
+                    </form>
+                </div>
+                <div class="overflow-x-auto -mx-4 sm:mx-0">
+                    <table class="w-full text-sm text-left text-gray-500 data-table">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 sm:px-6">Customer</th>
+                                <th class="px-4 py-3 sm:px-6">Service</th>
+                                <th class="px-4 py-3 sm:px-6">Date</th>
+                                <th class="px-4 py-3 sm:px-6">Reference Code</th>
+                                <th class="px-4 py-3 sm:px-6">Status</th>
+                                <th class="px-4 py-3 sm:px-6">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in recent_appointments %}
+                            <tr class="bg-white border-b hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-4 py-3 sm:px-6">{{ appointment.customer_name }}</td>
+                                <td class="px-4 py-3 sm:px-6">{{ appointment.service_type }}</td>
+                                <td class="px-4 py-3 sm:px-6">{{ appointment.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="px-4 py-3 sm:px-6">{{ appointment.reference_code }}</td>
+                                <td class="px-4 py-3 sm:px-6">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full
+                                        {% if appointment.status == 'completed' %}
+                                            bg-green-100 text-green-800
+                                        {% elif appointment.status == 'pending' %}
+                                            bg-yellow-100 text-yellow-800
+                                        {% else %}
+                                            bg-gray-100 text-gray-800
+                                        {% endif %}">
+                                        {{ appointment.status|title }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 sm:px-6">
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        <button class="text-blue-600 hover:text-blue-900 flex items-center ripple">
+                                            <span class="material-icons-round text-sm mr-1">update</span> Update
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-900 flex items-center ripple">
+                                            <span class="material-icons-round text-sm mr-1">close</span> Cancel
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('toggleNav');
+            const navLinks = document.getElementById('navLinks');
+            
+            if(toggleButton && navLinks) {
+                toggleButton.addEventListener('click', function() {
+                    navLinks.classList.toggle('hidden');
+                });
+                
+                // Close navigation when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const isClickInsideNav = navLinks.contains(event.target);
+                    const isClickOnToggleButton = toggleButton.contains(event.target);
+                    
+                    if (!isClickInsideNav && !isClickOnToggleButton && window.innerWidth < 768 && !navLinks.classList.contains('hidden')) {
+                        navLinks.classList.add('hidden');
+                    }
+                });
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) {
+                        navLinks.classList.remove('hidden');
+                    }
+                });
+            }
+            
+            // Initialize Charts
+            initializeCharts();
+            
+            // Add ripple effect to buttons
+            const rippleButtons = document.querySelectorAll('.ripple');
+            rippleButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const x = e.clientX - e.target.getBoundingClientRect().left;
+                    const y = e.clientY - e.target.getBoundingClientRect().top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        // Initialize Charts
+        function initializeCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Monthly Sales (₱)',
+                        data: [12500, 19000, 15000, 25000, 22000, 30000, 28000, 26000, 29000, 32000, 35000, 38000],
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        borderColor: 'rgba(33, 150, 243, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+            
+            // Order Status Chart
+const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+new Chart(orderStatusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Pending', 'Processing', 'Cancelled'],
+        datasets: [{
+            data: [65, 20, 10, 5],
+            backgroundColor: [
+                'rgba(46, 204, 113, 0.8)',
+                'rgba(241, 196, 15, 0.8)',
+                'rgba(52, 152, 219, 0.8)',
+                'rgba(231, 76, 60, 0.8)'
+            ],
+            borderColor: [
+                'rgba(46, 204, 113, 1)',
+                'rgba(241, 196, 15, 1)',
+                'rgba(52, 152, 219, 1)',
+                'rgba(231, 76, 60, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        animation: {
+            animateRotate: true,
+            animateScale: true
+        }
+    }
+});
+</script>
+</body>
+</html>

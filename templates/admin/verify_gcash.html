@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVMOTO Admin - Verify GCash Payments</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-[#0070e0] fixed w-full z-40">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <!-- Logo -->
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center">
+                <span class="self-center text-xl font-semibold text-white">AV MOTO Admin</span>
+            </a>
+    
+            <!-- Mobile menu button -->
+            <button id="toggleNav" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-[#005bb5] focus:outline-none focus:ring-2 focus:ring-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+    
+            <!-- Nav Links -->
+            <div id="navLinks" class="hidden w-full md:block md:w-auto">
+                <ul class="flex flex-col p-4 md:p-0 mt-4 md:flex-row md:space-x-8 md:mt-0 md:border-0">
+                    <!-- Dashboard -->
+                    <li>
+                        <a href="{{ url_for('admin_dashboard') }}" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-[#005bb5] md:hover:bg-transparent md:p-0 md:hover:text-white">
+                            Dashboard
+                        </a>
+                    </li>
+    
+                    <!-- Products -->
+                    <li>
+                        <a href="{{ url_for('admin_products') }}" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-[#005bb5] md:hover:bg-transparent md:p-0 md:hover:text-white">
+                            Products
+                        </a>
+                    </li>
+    
+                    <!-- Verify GCash Payments -->
+                    
+                    <!-- Add Staff -->
+                    <li>
+                        <a href="{{ url_for('add_staff') }}" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-[#005bb5] md:hover:bg-transparent md:p-0 md:hover:text-white">
+                            Add Staff
+                        </a>
+                    </li>
+    
+                    <!-- Add Blog Post -->
+                    <li>
+                        <a href="{{ url_for('add_blog_post') }}" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-[#005bb5] md:hover:bg-transparent md:p-0 md:hover:text-white">
+                            Add Blog Post
+                        </a>
+                    </li>
+    
+                    <!-- Services -->
+                    <li>
+                        <a href="{{ url_for('manage_services') }}" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-[#005bb5] md:hover:bg-transparent md:p-0 md:hover:text-white">
+                            Services
+                        </a>
+                    </li>
+    
+                    <!-- Logout -->
+                    <li>
+                        <a href="{{ url_for('logout') }}" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-[#005bb5] md:hover:bg-transparent md:p-0 md:hover:text-white">
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-24 p-4">
+        <div class="p-4 border-2 border-gray-200 rounded-lg">
+            <h1 class="text-2xl font-bold mb-6">Pending GCash Payments</h1>
+            
+            {% if pending_orders|length == 0 %}
+            <div class="bg-white rounded-lg shadow p-6 text-center">
+                <p class="text-gray-600">No pending GCash payments to verify.</p>
+            </div>
+            {% else %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GCash Reference</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for order in pending_orders %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ order.id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.customer_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱{{ order.total_amount|round(2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.reference_number }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <form action="{{ url_for('verify_gcash_payment', order_id=order.id) }}" method="POST">
+                                            <input type="hidden" name="action" value="confirm">
+                                            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md text-sm font-medium">
+                                                Confirm
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('verify_gcash_payment', order_id=order.id) }}" method="POST">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm font-medium">
+                                                Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('toggleNav');
+            const navLinks = document.getElementById('navLinks');
+            
+            if(toggleButton && navLinks) {
+                toggleButton.addEventListener('click', function() {
+                    navLinks.classList.toggle('hidden');
+                });
+                
+                // Close navigation when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const isClickInsideNav = navLinks.contains(event.target);
+                    const isClickOnToggleButton = toggleButton.contains(event.target);
+                    
+                    if (!isClickInsideNav && !isClickOnToggleButton && window.innerWidth < 768 && !navLinks.classList.contains('hidden')) {
+                        navLinks.classList.add('hidden');
+                    }
+                });
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) {
+                        navLinks.classList.remove('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

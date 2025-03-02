@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Motor Parts{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-900 to-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Background elements for depth -->
+    <div class="absolute -top-24 -left-24 w-64 h-64 bg-indigo-700 rounded-full opacity-15 blur-3xl"></div>
+    <div class="absolute top-1/3 -right-32 w-96 h-96 bg-purple-800 rounded-full opacity-15 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/3 w-72 h-72 bg-blue-700 rounded-full opacity-15 blur-3xl"></div>
+    
+    <div class="max-w-3xl mx-auto relative z-10">
+        <!-- Checkout Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 font-sans tracking-tight">Checkout</h1>
+            <p class="text-gray-400 font-light mt-2 text-lg">Please provide your details to complete your order.</p>
+        </div>
+
+        <!-- Checkout Form -->
+        <form action="{{ url_for('checkout') }}" method="POST" class="backdrop-blur-lg bg-slate-800/40 rounded-2xl shadow-xl p-8 space-y-6 border border-slate-700/60">
+            <!-- Customer Name -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-indigo-300 mb-1.5 tracking-wide">Full Name</label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       required 
+                       placeholder="Cardo Dalisay"
+                       class="mt-1 block w-full rounded-xl border-0 bg-slate-700/50 backdrop-blur-sm shadow-sm ring-1 ring-inset ring-indigo-500/30 placeholder:text-slate-500 text-gray-200 focus:ring-2 focus:ring-indigo-500 py-3.5 px-4 sm:text-sm transition-all duration-200">
+            </div>
+        
+            <!-- Shipping Address -->
+            <div>
+                <label for="address" class="block text-sm font-medium text-indigo-300 mb-1.5 tracking-wide">Shipping Address</label>
+                <textarea id="address" 
+                          name="address" 
+                          rows="3" 
+                          required 
+                          placeholder="123 Street Name, City, State, ZIP"
+                          class="mt-1 block w-full rounded-xl border-0 bg-slate-700/50 backdrop-blur-sm shadow-sm ring-1 ring-inset ring-indigo-500/30 placeholder:text-slate-500 text-gray-200 focus:ring-2 focus:ring-indigo-500 py-3.5 px-4 sm:text-sm transition-all duration-200"></textarea>
+            </div>
+        
+            <!-- Contact Number -->
+            <div>
+                <label for="contact_number" class="block text-sm font-medium text-indigo-300 mb-1.5 tracking-wide">Contact Number</label>
+                <input type="text" 
+                       id="contact_number" 
+                       name="contact_number" 
+                       required 
+                       placeholder="+63 (993) 123-4567"
+                       class="mt-1 block w-full rounded-xl border-0 bg-slate-700/50 backdrop-blur-sm shadow-sm ring-1 ring-inset ring-indigo-500/30 placeholder:text-slate-500 text-gray-200 focus:ring-2 focus:ring-indigo-500 py-3.5 px-4 sm:text-sm transition-all duration-200">
+            </div>
+        
+            <!-- Payment Method -->
+            <div>
+                <label for="payment_method" class="block text-sm font-medium text-indigo-300 mb-1.5 tracking-wide">Payment Method</label>
+                <div class="relative">
+                    <select id="payment_method" 
+                            name="payment_method" 
+                            required 
+                            onchange="toggleGcashSection(this.value)"
+                            class="mt-1 block w-full rounded-xl border-0 bg-slate-700/50 backdrop-blur-sm shadow-sm ring-1 ring-inset ring-indigo-500/30 placeholder:text-slate-500 text-gray-200 focus:ring-2 focus:ring-indigo-500 py-3.5 px-4 sm:text-sm transition-all duration-200 appearance-none">
+                        <option value="" disabled selected>-- Select Payment Method --</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="gcash">GCash</option>
+                        <option value="cash_on_delivery">Cash on Delivery</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-indigo-400">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GCash Payment Section -->
+            <div id="gcash_section" style="display: none;">
+                <div class="backdrop-blur-md bg-indigo-900/40 border border-indigo-700/60 rounded-xl p-6">
+                    <h3 class="text-lg font-medium text-indigo-300 mb-3 tracking-tight">GCash Payment Instructions</h3>
+                    <p class="mb-4 text-gray-300 font-light">Please scan the QR code below to make your GCash payment:</p>
+                    
+                    <div class="flex justify-center mb-4">
+                        <div class="p-2 bg-slate-800/60 rounded-lg shadow-lg border border-indigo-500/20">
+                            <img src="{{ url_for('static', filename='images/fire.png') }}" alt="GCash QR Code" class="w-48 h-48">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="reference_number" class="block text-sm font-medium text-indigo-300 mb-1.5 tracking-wide">GCash Reference Number</label>
+                        <input type="text" 
+                               id="reference_number" 
+                               name="reference_number" 
+                               placeholder="e.g. GC1234567890"
+                               class="mt-1 block w-full rounded-xl border-0 bg-slate-700/50 backdrop-blur-sm shadow-sm ring-1 ring-inset ring-indigo-500/30 placeholder:text-slate-500 text-gray-200 focus:ring-2 focus:ring-indigo-500 py-3.5 px-4 sm:text-sm transition-all duration-200">
+                        <p class="text-sm text-indigo-400 mt-2 font-light">Please enter the reference number from your GCash payment receipt</p>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Submit Button -->
+            <div class="pt-6">
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-indigo-600 to-purple-700 text-white py-3.5 px-6 rounded-xl font-medium hover:from-indigo-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl text-sm tracking-wider">
+                    Place Order
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleGcashSection(paymentMethod) {
+        const gcashSection = document.getElementById('gcash_section');
+        const referenceNumberInput = document.getElementById('reference_number');
+        
+        if (paymentMethod === 'gcash') {
+            gcashSection.style.display = 'block';
+            referenceNumberInput.setAttribute('required', 'required');
+        } else {
+            gcashSection.style.display = 'none';
+            referenceNumberInput.removeAttribute('required');
+        }
+    }
+</script>
+{% endblock %}

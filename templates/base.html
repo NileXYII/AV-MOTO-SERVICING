@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AV MOTO Shop - {% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+    <!-- Navigation - Glassmorphism Navbar -->
+    <nav class="glassmorphism sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-full mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{{ url_for('landing') }}" class="flex items-center">
+                        <span class="text-white text-xl font-bold">AV MOTO SERVICING</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    {% if not (current_user.is_authenticated and current_user.is_admin) %}
+                        <a href="{{ url_for('landing') }}" class="text-white hover:text-blue-300 px-3 py-2 transition-colors duration-200">Home</a>
+                        <a href="{{ url_for('shop') }}" class="text-white hover:text-blue-300 px-3 py-2 transition-colors duration-200">Shop</a>
+                        <a href="{{ url_for('cart') }}" class="text-white hover:text-blue-300 px-3 py-2 transition-colors duration-200 relative">
+                            Cart
+                            {% if cart_count > 0 %}
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ cart_count }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('appointments') }}" class="text-white hover:text-blue-300 px-3 py-2 transition-colors duration-200">Appointments</a>
+                    {% endif %}
+
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="text-white hover:text-blue-300 px-3 py-2 transition-colors duration-200">Admin</a>
+                        {% endif %}
+                        <a href="{{ url_for('logout') }}" class="bg-red-600 bg-opacity-80 text-white hover:bg-opacity-100 px-4 py-2 rounded-lg transition-all duration-200">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="text-white hover:text-blue-300 px-3 py-2 transition-colors duration-200">Login</a>
+                        <a href="{{ url_for('signup') }}" class="bg-blue-600 bg-opacity-80 text-white hover:bg-opacity-100 px-4 py-2 rounded-lg transition-all duration-200">Sign Up</a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button with Animation -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-white p-2 focus:outline-none">
+                        <div class="w-6 flex flex-col items-end justify-center space-y-1.5" id="hamburger">
+                            <span class="block h-0.5 w-6 bg-white transform transition duration-300"></span>
+                            <span class="block h-0.5 w-5 bg-white transform transition duration-300"></span>
+                            <span class="block h-0.5 w-4 bg-white transform transition duration-300"></span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Improved Mobile Menu with Animation -->
+            <div id="mobile-menu" class="md:hidden pb-4 max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="glassmorphism rounded-lg p-4 mt-2 space-y-3">
+                    <a href="{{ url_for('landing') }}" class="block text-white hover:text-blue-300 py-2 px-3 rounded transition-colors duration-200">Home</a>
+                    
+                    {% if current_user.is_authenticated and not current_user.is_admin %}
+                        <a href="{{ url_for('shop') }}" class="block text-white hover:text-blue-300 py-2 px-3 rounded transition-colors duration-200">Shop</a>
+                        <a href="{{ url_for('cart') }}" class="block text-white hover:text-blue-300 py-2 px-3 rounded transition-colors duration-200 relative">
+                            Cart
+                            {% if cart_count > 0 %}
+                                <span class="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 inline-flex items-center justify-center">
+                                    {{ cart_count }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('appointments') }}" class="block text-white hover:text-blue-300 py-2 px-3 rounded transition-colors duration-200">Appointments</a>
+                    {% elif not current_user.is_authenticated %}
+                        <a href="{{ url_for('shop') }}" class="block text-white hover:text-blue-300 py-2 px-3 rounded transition-colors duration-200">Shop</a>
+                    {% endif %}
+                
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="block text-white hover:text-blue-300 py-2 px-3 rounded transition-colors duration-200">Admin</a>
+                        {% endif %}
+                        <a href="{{ url_for('logout') }}" class="block bg-red-600 bg-opacity-80 text-white hover:bg-opacity-100 py-2 px-4 rounded-lg transition-all duration-200 mt-4">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="block text-white hover:text-blue-300 py-2 px-3 rounded transition-colors duration-200">Login</a>
+                        <a href="{{ url_for('signup') }}" class="block bg-blue-600 bg-opacity-80 text-white hover:bg-opacity-100 py-2 px-4 rounded-lg transition-all duration-200 mt-4">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Improved Flash Messages with Glassmorphism -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="w-full px-4 mt-4">
+                {% for category, message in messages %}
+                    <div class="rounded-lg p-4 mb-4 relative glassmorphism {% if category == 'error' %}border-red-300 text-red-100{% else %}border-green-300 text-green-100{% endif %}">
+                        {{ message }}
+                        <button onclick="this.parentElement.remove()" class="absolute top-4 right-4 text-white hover:text-gray-300">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Content - Full Width for Templates -->
+    <div class="w-full">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer with Glassmorphism -->
+    <footer class="glassmorphism mt-16">
+        <div class="w-full px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-white">About Us</h3>
+                    <p class="text-sm text-gray-300">Your trusted source for quality motor parts and expert service since 1990.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-white">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Shipping Information</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Returns Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-white">Contact</h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            info@motorparts.com
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            (555) 123-4567
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            123 Auto Street
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-sm text-gray-400">
+                <p>&copy; 2025 AV MOTO SERVICING. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chatbot Scripts - Moved to end of body -->
+    <script src="https://cdn.botpress.cloud/webchat/v2.2/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2024/12/07/10/20241207104842-2KVZG3JR.js"></script>
+    <script>
+        // Mobile menu toggle with animation
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            const hamburger = document.getElementById('hamburger');
+            const spans = hamburger.getElementsByTagName('span');
+            
+            if (menu.classList.contains('max-h-0')) {
+                menu.classList.remove('max-h-0');
+                menu.classList.add('max-h-96');
+                
+                // Animate hamburger to X
+                spans[0].classList.add('rotate-45', 'translate-y-2', 'w-6');
+                spans[1].classList.add('opacity-0', 'w-6');
+                spans[2].classList.add('-rotate-45', '-translate-y-2', 'w-6');
+            } else {
+                menu.classList.remove('max-h-96');
+                menu.classList.add('max-h-0');
+                
+                // Animate X back to hamburger
+                spans[0].classList.remove('rotate-45', 'translate-y-2', 'w-6');
+                spans[1].classList.remove('opacity-0', 'w-6');
+                spans[2].classList.remove('-rotate-45', '-translate-y-2', 'w-6');
+            }
+        });
+
+        // Add scroll event listener to change navbar transparency on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('nav');
+            if (window.scrollY > 10) {
+                navbar.classList.add('bg-opacity-95');
+                navbar.classList.remove('bg-opacity-70');
+            } else {
+                navbar.classList.remove('bg-opacity-95');
+                navbar.classList.add('bg-opacity-70');
+            }
+        });
+
+        // Chatbot initialization with updated configuration
+        window.botpressWebChat.init({
+            "hostUrl": "https://cdn.botpress.cloud/webchat/v2.2",
+            "messagingUrl": "https://messaging.botpress.cloud",
+            "clientId": "YOUR_CLIENT_ID",  // Replace with your actual client ID
+            "config": {
+                "composerPlaceholder": "Chat with our auto parts expert",
+                "botConversationDescription": "Welcome to Motor Parts Shop",
+                "botName": "Parts Expert",
+                "stylesheet": "https://files.bpcontent.cloud/2024/12/07/10/20241207104842-2KVZG3JR.js",
+                "emailAddress": "support@motorparts.com",
+                "showPoweredBy": false,
+                "containerWidth": "400px",
+                "layoutWidth": "400px",
+                "hideWidget": false,
+                "theme": {
+                    "style": {
+                        "backgroundColor": "rgba(15, 23, 42, 0.8)",
+                        "textColorOnBackground": "#ffffff",
+                        "foregroundColor": "rgba(59, 130, 246, 0.8)",
+                        "textColorOnForeground": "#ffffff"
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

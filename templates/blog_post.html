@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
+        {% if post.image_url %}
+        <img src="{{ post.image_url }}" alt="{{ post.title }}" class="w-full h-64 object-cover rounded-lg mb-6">
+        {% endif %}
+        <div class="prose max-w-none">
+            {{ post.content | safe }}
+        </div>
+        {% if post.video_url %}
+        <div class="mt-6">
+            <iframe class="w-full h-64" src="{{ post.video_url }}" frameborder="0" allowfullscreen></iframe>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
