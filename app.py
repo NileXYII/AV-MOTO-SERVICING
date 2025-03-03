@@ -20,8 +20,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///motorparts.db'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'avmotoservicing@gmail.com')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'rozz agwd iosq rwux')
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 limiter = Limiter(key_func=get_remote_address)  # Create the Limiter instance first
 limiter.init_app(app) 
