@@ -1009,6 +1009,8 @@ def generate_reference_code():
         code = random.randint(100000, 999999)
     return str(code)
 
+    
+
 def init_db():
     with app.app_context():
         db.drop_all()
